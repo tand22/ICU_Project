@@ -6,9 +6,14 @@ Node: download from https://nodejs.org/en/
 
 ## Installing
 
-Clone the repo, then:
+Clone the repo, then, within the /frontend directory:
 
 ```npm install
+```
+
+or if you get an error with one of the mui libraries, you might need to use
+
+```npm install --legacy-peer-dep
 ```
 
 ## Starting Development
