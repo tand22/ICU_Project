@@ -1,24 +1,27 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import './App.css'
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button'
-import Stack from '@mui/material/Stack';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import TextField from '@mui/material/TextField';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
-import { AppBar, Badge, Container, createTheme, Grid, IconButton, Paper, ThemeProvider, Toolbar } from '@mui/material';
-import { Label } from '@mui/icons-material';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
+import { Badge, createTheme, Grid, IconButton, Paper, ThemeProvider, Toolbar } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import Basic from './components/Basic';
+import Basic from './components/BasicDropzone';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import PatientDataTable from './components/PatientDataTable';
+import axios from 'axios';
+
+
+const url = `https://8urzwwef10.execute-api.ap-southeast-2.amazonaws.com/predict`
+const config = {
+  headers: {
+    'Content-Type': 'application/json'
+  }
+}
 
 
 function App() {
@@ -39,78 +42,136 @@ function App() {
   const drawerWidth: number = 240;
 
   const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+    shouldForwardProp: (prop) => prop !== 'open',
+  })<AppBarProps>(({ theme, open }) => ({
+    zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: theme.transitions.duration.leavingScreen,
     }),
-  }),
-}));
+    ...(open && {
+      marginLeft: drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
+      transition: theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    }),
+  }));
+
+  const [recordID, setRecordID] = useState("")
+  const [selectedAge, setSelectedAge] = useState("")
+  const [selectedGender, setSelectedGender] = useState("0")
+  const [selectedWeight, setSelectedWeight] = useState("")
+  const [selectedHeight, setSelectedHeight] = useState("")
+  const [selectedICUType, setSelectedICUType] = useState("1")
+
+  const handleRecordIDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRecordID(event.target.value);
+  };
+
+  const handleAgeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedAge(event.target.value);
+  };
+
+  const handleGenderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedGender((event.target as HTMLInputElement).value);
+  };
+
+  const handleWeightChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedWeight(event.target.value);
+  };
+
+  const handleHeightChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedHeight(event.target.value);
+  };
+
+  const handleICUTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedICUType((event.target as HTMLInputElement).value);
+  };
+
+  const handleSubmitButtonClick = () => {
+    console.log("Submit clicked")
+
+    // Format the static data
+    const payload = []
+    payload.push(["00:00", "Age", selectedAge])
+    payload.push(["00:00", "Gender", selectedGender])
+    payload.push(["00:00", "Height", selectedHeight])
+    payload.push(["00:00", "ICUType", selectedICUType])
+    payload.push(["00:00", "Weight", selectedWeight])
+
+    // Format the time-series data
+    rows.forEach((row) => {
+      payload.push([row.time, row.parameter, row.value])
+    })
+
+    const body = JSON.stringify(payload)
+    console.log(body)
+    // axios.post(url, {'body': body}, config)
+    // .then((res)=>{
+    //   console.log("The Response:")
+    //   console.log(res)
+    // })
+    // .catch((err)=>{
+    //   console.log(err)
+    // })
+  }
+
+  const [rows, setRows] = useState([
+    { id: 1, time: '00:00', parameter: 'Albumin', value: '1' },
+    { id: 2, time: '00:00', parameter: 'ALP', value: '1' },
+    { id: 3, time: '00:00', parameter: 'ALT', value: '2' },
+    { id: 4, time: '00:00', parameter: 'AST', value: '3.2' },
+    { id: 5, time: '00:00', parameter: 'Cholesterol', value: '1' },
+    { id: 6, time: '01:45', parameter: 'HCT', value: null },
+    { id: 7, time: '01:45', parameter: 'FiO2', value: '23' },
+    { id: 8, time: '01:45', parameter: 'HCO3', value: '15' },
+    { id: 9, time: '01:45', parameter: 'Platelets', value: '1' },
+    { id: 10, time: '03:15', parameter: 'FiO2', value: '23'},
+    { id: 11, time: '03:15', parameter: 'HCO3', value: '15' },
+    { id: 12, time: '03:15', parameter: 'Platelets', value: '1' },
+  ]);
+
 
   return (
     <ThemeProvider theme={darkTheme}>
     <div className="App">
       <header className="App-header">
-      <AppBar position="absolute" /*open={open}*/>
-      <Toolbar
-            sx={{
-              pr: '24px', // keep right padding when drawer closed
-            }}
+      <AppBar position="absolute">
+        <Toolbar
+          sx={{
+            pr: '24px', // keep right padding when drawer closed
+          }}
           >
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              // onClick={toggleDrawer}
-              sx={{
-                marginRight: '36px',
-                // ...(open && { display: 'none' }),
-              }}
-            >
-
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              ICU Project
-            </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-
-              </Badge>
-            </IconButton>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            sx={{ flexGrow: 1 }}
+          >
+            ICU Project
+          </Typography>
         </Toolbar>
-        </AppBar>
+      </AppBar>
         <Grid container maxWidth={1100}>
           <Grid item container sm={3} direction="column" justifyContent="center">
-            <TextField id="outlined-basic" label="Patient Record ID" variant="outlined" size="medium"/>
+            <TextField id="outlined-basic" label="Patient Record ID" value={recordID} onChange={handleRecordIDChange} variant="outlined" size="medium"/>
           </Grid>
           <Grid item sm={1.5}/>
           <Grid item container sm={4.5} direction="column" justifyContent="center">
-            <Basic></Basic>
+            <Basic rows={rows} setRows={setRows} setRecordID={setRecordID} setSelectedAge={setSelectedAge} setSelectedGender={setSelectedGender} setSelectedWeight={setSelectedWeight} setSelectedHeight={setSelectedHeight} setSelectedICUType={setSelectedICUType}/>
           </Grid>
           <Grid item sm={0.5}/>
-          <Grid item container sm={2} direction="column" justifyContent="center">
+          {/* <Grid item container sm={2} direction="column" justifyContent="center">
             <label htmlFor="contained-button-file">
               <Input accept=".txt*" id="contained-button-file" multiple type="file" />
               <Button variant="contained" component="span">
                 Import Data
               </Button>
             </label>
-          </Grid>
+          </Grid> */}
         </Grid>
         <br/>
 
@@ -129,7 +190,7 @@ function App() {
                     <Typography>Age</Typography>
                   </Grid>
                   <Grid item sm={7}>
-                    <TextField label="Age" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+                    <TextField value={selectedAge} onChange={handleAgeChange} label="Age" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
                   </Grid>
                 </Grid>
                 <Grid container padding={2} spacing={4}>
@@ -141,12 +202,13 @@ function App() {
                       <FormLabel id="demo-radio-buttons-group-label"></FormLabel>
                       <RadioGroup
                         aria-labelledby="demo-radio-buttons-group-label"
-                        defaultValue="female"
+                        value={selectedGender}
+                        onChange={handleGenderChange}
                         name="radio-buttons-group"
                       >
-                        <FormControlLabel value="female" control={<Radio />} label="Female" />
-                        <FormControlLabel value="male" control={<Radio />} label="Male" />
-                        <FormControlLabel value="other" control={<Radio />} label="Other" />
+                        <FormControlLabel value="0" control={<Radio />} label="Female" />
+                        <FormControlLabel value="1" control={<Radio />} label="Male" />
+                        <FormControlLabel value="-1" control={<Radio />} label="Other" />
                       </RadioGroup>
                     </FormControl>
                   </Grid>
@@ -156,7 +218,7 @@ function App() {
                     <Typography>Initial Weight</Typography>
                   </Grid>
                   <Grid item sm={7}>
-                    <TextField label="Initial Weight" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+                    <TextField label="Initial Weight" value={selectedWeight} onChange={handleWeightChange} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
                   </Grid>
                 </Grid>
                 <Grid container padding={2} spacing={4}>
@@ -164,7 +226,7 @@ function App() {
                     <Typography>Initial Height</Typography>
                   </Grid>
                   <Grid item sm={7}>
-                    <TextField label="Initial Height" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+                    <TextField label="Initial Height" value={selectedHeight} onChange={handleHeightChange} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
                   </Grid>
                 </Grid>
                 
@@ -177,13 +239,14 @@ function App() {
                     <FormLabel id="demo-radio-buttons-group-label"></FormLabel>
                     <RadioGroup
                       aria-labelledby="demo-radio-buttons-group-label"
-                      defaultValue="coronary care unit"
+                      value={selectedICUType}
+                      onChange={handleICUTypeChange}
                       name="radio-buttons-group"
                     >
-                      <FormControlLabel value="coronary care unit" control={<Radio />} label="Coronary Care Unit" />
-                      <FormControlLabel value="cardiac surgery recovery" control={<Radio />} label="Cardiac Surgery Recovery" />
-                      <FormControlLabel value="medical icu" control={<Radio />} label="Medical ICU" />
-                      <FormControlLabel value="surgical icu" control={<Radio />} label="Surgical ICU" />
+                      <FormControlLabel value="1" control={<Radio />} label="Coronary Care Unit" />
+                      <FormControlLabel value="2" control={<Radio />} label="Cardiac Surgery Recovery" />
+                      <FormControlLabel value="3" control={<Radio />} label="Medical ICU" />
+                      <FormControlLabel value="4" control={<Radio />} label="Surgical ICU" />
                     </RadioGroup>
                   </FormControl>
                   </Grid>
@@ -202,17 +265,19 @@ function App() {
                       boxShadow: 5,
                     }}>
             <div style={{ height: 650, width: '100%' }}>
-              {/* <DataGrid
-                rows={rows}
-                columns={columns}
-                pageSize={10}
-                rowsPerPageOptions={[5]}
-              /> */}
-              <PatientDataTable>
-                
-              </PatientDataTable>
+              <PatientDataTable rows={rows} setRows={setRows}/>
             </div>
             </Paper>
+          </Grid>
+        </Grid>
+        <Grid container>
+          <Grid item sm={9}/>
+          <Grid item container sm={2} direction="column" justifyContent="center">
+              <label htmlFor="contained-button-file">
+                <Button variant="contained" onClick={handleSubmitButtonClick} component="span">
+                  Submit Data
+                </Button>
+              </label>
           </Grid>
         </Grid>
       </header>
