@@ -38,4 +38,5 @@ functions:
       - httpApi:
           path: /predict
           method: post
+          cors: true
 

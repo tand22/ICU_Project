@@ -35,6 +35,9 @@ def predict(event, context):
         response = {
             "statusCode": 200,
             "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
                 "Content-Type": "application/json",
             },
             "body": json.dumps({
@@ -51,6 +54,9 @@ def predict(event, context):
         return {
             "statusCode": 500,
             "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
                 "Content-Type": "application/json",
             },
             "body": json.dumps({"error": repr(e)})
