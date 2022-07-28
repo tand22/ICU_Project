@@ -3,9 +3,9 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-function PatientDataTable(props) {
+function PatientDataTable(props: { rows: any; setRows: any; }) {
   const [rows, setRows] = [props.rows, props.setRows]
-  const [selectionModel, setSelectionModel] = useState([]);
+  const [selectionModel, setSelectionModel] = useState<any[]>([]);
   
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
@@ -23,7 +23,7 @@ function PatientDataTable(props) {
             onClick={() => {
               console.log('Trash Icon clicked');
               const selectedIDs = new Set<number>(selectionModel);
-              setRows((r) => r.filter((x) => !selectedIDs.has(x.id)));
+              setRows((r: any[]) => r.filter((x) => !selectedIDs.has(x.id)));
             }}
           ><DeleteIcon/>
           </IconButton>
