@@ -8,7 +8,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import TextField from '@mui/material/TextField';
-import { Badge, createTheme, Grid, IconButton, Paper, ThemeProvider, Toolbar } from '@mui/material';
+import { createTheme, Grid, Paper, ThemeProvider, Toolbar } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Basic from './components/BasicDropzone';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
