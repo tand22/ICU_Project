@@ -13,16 +13,9 @@ import Typography from '@mui/material/Typography';
 import Basic from './components/BasicDropzone';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import PatientDataTable from './components/PatientDataTable';
-import axios from 'axios';
 
 
-const url = `https://8urzwwef10.execute-api.ap-southeast-2.amazonaws.com/predict`
-const config = {
-  headers: {
-    'Content-Type': 'application/json'
-  }
-}
-
+const url = `https://n7j7474qbf.execute-api.ap-southeast-2.amazonaws.com/predict`
 
 function App() {
   const Input = styled('input')({
@@ -59,6 +52,7 @@ function App() {
     }),
   }));
 
+  // State hooks for static data
   const [recordID, setRecordID] = useState("")
   const [selectedAge, setSelectedAge] = useState("")
   const [selectedGender, setSelectedGender] = useState("0")
@@ -91,7 +85,7 @@ function App() {
   };
 
   const handleSubmitButtonClick = () => {
-    console.log("Submit clicked")
+    console.log("Submit Button Clicked")
 
     // Format the static data
     const payload = []
@@ -107,17 +101,19 @@ function App() {
     })
 
     const body = JSON.stringify(payload)
-    console.log(body)
-    // axios.post(url, {'body': body}, config)
-    // .then((res)=>{
-    //   console.log("The Response:")
-    //   console.log(res)
-    // })
-    // .catch((err)=>{
-    //   console.log(err)
-    // })
+
+    fetch(url, {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    }).then((response) => response.json())
+    .then((responseJSON) => {
+      // TODO: Format and display the responseJSON data into a bar chart for the user.
+      console.log(responseJSON)
+    })
   }
 
+  // Table rows for the time-series data
   const [rows, setRows] = useState([
     { id: 1, time: '00:00', parameter: 'Albumin', value: '1' },
     { id: 2, time: '00:00', parameter: 'ALP', value: '1' },
@@ -139,11 +135,7 @@ function App() {
     <div className="App">
       <header className="App-header">
       <AppBar position="absolute">
-        <Toolbar
-          sx={{
-            pr: '24px', // keep right padding when drawer closed
-          }}
-          >
+        <Toolbar>
           <Typography
             component="h1"
             variant="h6"
@@ -155,28 +147,19 @@ function App() {
           </Typography>
         </Toolbar>
       </AppBar>
-        <Grid container maxWidth={1100}>
+        <Grid container maxWidth={1200} px={4} mt={12}>
           <Grid item container sm={3} direction="column" justifyContent="center">
             <TextField id="outlined-basic" label="Patient Record ID" value={recordID} onChange={handleRecordIDChange} variant="outlined" size="medium"/>
           </Grid>
           <Grid item sm={1.5}/>
           <Grid item container sm={4.5} direction="column" justifyContent="center">
-            <Basic rows={rows} setRows={setRows} setRecordID={setRecordID} setSelectedAge={setSelectedAge} setSelectedGender={setSelectedGender} setSelectedWeight={setSelectedWeight} setSelectedHeight={setSelectedHeight} setSelectedICUType={setSelectedICUType}/>
+            <Basic setRows={setRows} setRecordID={setRecordID} setSelectedAge={setSelectedAge} setSelectedGender={setSelectedGender} setSelectedWeight={setSelectedWeight} setSelectedHeight={setSelectedHeight} setSelectedICUType={setSelectedICUType}/>
           </Grid>
-          <Grid item sm={0.5}/>
-          {/* <Grid item container sm={2} direction="column" justifyContent="center">
-            <label htmlFor="contained-button-file">
-              <Input accept=".txt*" id="contained-button-file" multiple type="file" />
-              <Button variant="contained" component="span">
-                Import Data
-              </Button>
-            </label>
-          </Grid> */}
         </Grid>
-        <br/>
+
 
         <Grid container maxWidth={1200} padding={4}>
-          <Grid item container sm={4} /*border={2}*/>
+          <Grid item container sm={4}>
             <Paper sx={{
                     p: 2,
                     display: 'flex',
@@ -184,75 +167,72 @@ function App() {
                     backgroundColor: '#212121',
                     boxShadow: 5,
                   }}>
-              <form noValidate autoComplete="off"> 
-                <Grid container padding={2} spacing={4}>
-                  <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
-                    <Typography>Age</Typography>
-                  </Grid>
-                  <Grid item sm={7}>
-                    <TextField value={selectedAge} onChange={handleAgeChange} label="Age" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
-                  </Grid>
+              <Grid container padding={2} spacing={4}>
+                <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
+                  <Typography>Age</Typography>
                 </Grid>
-                <Grid container padding={2} spacing={4}>
-                  <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
-                    <Typography>Gender</Typography>
-                  </Grid>
-                  <Grid item sm={7}>
-                    <FormControl>
-                      <FormLabel id="demo-radio-buttons-group-label"></FormLabel>
-                      <RadioGroup
-                        aria-labelledby="demo-radio-buttons-group-label"
-                        value={selectedGender}
-                        onChange={handleGenderChange}
-                        name="radio-buttons-group"
-                      >
-                        <FormControlLabel value="0" control={<Radio />} label="Female" />
-                        <FormControlLabel value="1" control={<Radio />} label="Male" />
-                        <FormControlLabel value="-1" control={<Radio />} label="Other" />
-                      </RadioGroup>
-                    </FormControl>
-                  </Grid>
+                <Grid item sm={7}>
+                  <TextField value={selectedAge} onChange={handleAgeChange} label="Age" inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
                 </Grid>
-                <Grid container padding={2} spacing={4}>
-                  <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
-                    <Typography>Initial Weight</Typography>
-                  </Grid>
-                  <Grid item sm={7}>
-                    <TextField label="Initial Weight" value={selectedWeight} onChange={handleWeightChange} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
-                  </Grid>
+              </Grid>
+              <Grid container padding={2} spacing={4}>
+                <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
+                  <Typography>Gender</Typography>
                 </Grid>
-                <Grid container padding={2} spacing={4}>
-                  <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
-                    <Typography>Initial Height</Typography>
-                  </Grid>
-                  <Grid item sm={7}>
-                    <TextField label="Initial Height" value={selectedHeight} onChange={handleHeightChange} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
-                  </Grid>
-                </Grid>
-                
-                <Grid container padding={2} spacing={4}>
-                  <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
-                    <Typography>ICU Type</Typography>
-                  </Grid>
-                  <Grid item sm={7}>
+                <Grid item sm={7}>
                   <FormControl>
                     <FormLabel id="demo-radio-buttons-group-label"></FormLabel>
                     <RadioGroup
                       aria-labelledby="demo-radio-buttons-group-label"
-                      value={selectedICUType}
-                      onChange={handleICUTypeChange}
+                      value={selectedGender}
+                      onChange={handleGenderChange}
                       name="radio-buttons-group"
                     >
-                      <FormControlLabel value="1" control={<Radio />} label="Coronary Care Unit" />
-                      <FormControlLabel value="2" control={<Radio />} label="Cardiac Surgery Recovery" />
-                      <FormControlLabel value="3" control={<Radio />} label="Medical ICU" />
-                      <FormControlLabel value="4" control={<Radio />} label="Surgical ICU" />
+                      <FormControlLabel value="0" control={<Radio />} label="Female" />
+                      <FormControlLabel value="1" control={<Radio />} label="Male" />
+                      <FormControlLabel value="-1" control={<Radio />} label="Other" />
                     </RadioGroup>
                   </FormControl>
-                  </Grid>
                 </Grid>
-                
-              </form>
+              </Grid>
+              <Grid container padding={2} spacing={4}>
+                <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
+                  <Typography>Initial Weight</Typography>
+                </Grid>
+                <Grid item sm={7}>
+                  <TextField label="Initial Weight" value={selectedWeight} onChange={handleWeightChange} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+                </Grid>
+              </Grid>
+              <Grid container padding={2} spacing={4}>
+                <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
+                  <Typography>Initial Height</Typography>
+                </Grid>
+                <Grid item sm={7}>
+                  <TextField label="Initial Height" value={selectedHeight} onChange={handleHeightChange} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+                </Grid>
+              </Grid>
+              <Grid container padding={2} spacing={4}>
+                <Grid item container sm={5} direction="row" alignItems="center" justifyContent="flex-end">
+                  <Typography>ICU Type</Typography>
+                </Grid>
+                <Grid item sm={7}>
+                <FormControl>
+                  <FormLabel id="demo-radio-buttons-group-label"></FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    value={selectedICUType}
+                    onChange={handleICUTypeChange}
+                    name="radio-buttons-group"
+                  >
+                    <FormControlLabel value="1" control={<Radio />} label="Coronary Care Unit" />
+                    <FormControlLabel value="2" control={<Radio />} label="Cardiac Surgery Recovery" />
+                    <FormControlLabel value="3" control={<Radio />} label="Medical ICU" />
+                    <FormControlLabel value="4" control={<Radio />} label="Surgical ICU" />
+                  </RadioGroup>
+                </FormControl>
+                </Grid>
+              </Grid>
+              
             </Paper>
           </Grid>
           <Grid item sm={0.5}/>
@@ -270,9 +250,9 @@ function App() {
             </Paper>
           </Grid>
         </Grid>
-        <Grid container>
+        <Grid container maxWidth={1200} mb={4}>
           <Grid item sm={9}/>
-          <Grid item container sm={2} direction="column" justifyContent="center">
+          <Grid item container sm={2} direction="column" justifyContent="center" alignItems="flex-end" pr={4}>
               <label htmlFor="contained-button-file">
                 <Button variant="contained" onClick={handleSubmitButtonClick} component="span">
                   Submit Data

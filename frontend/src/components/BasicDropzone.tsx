@@ -32,7 +32,7 @@ const baseStyle = {
 
 
 function BasicDropzone(props) {
-  const [rows, setRows, setRecordID, setSelectedAge, setSelectedGender, setSelectedWeight, setSelectedHeight, setSelectedICUType] = [props.rows, props.setRows, props.setRecordID, props.setSelectedAge, props.setSelectedGender, props.setSelectedWeight, props.setSelectedHeight, props.setSelectedICUType]
+  const [setRows, setRecordID, setSelectedAge, setSelectedGender, setSelectedWeight, setSelectedHeight, setSelectedICUType] = [props.setRows, props.setRecordID, props.setSelectedAge, props.setSelectedGender, props.setSelectedWeight, props.setSelectedHeight, props.setSelectedICUType]
 
   const handleOnDrop = (files, fileRejections) => {
     console.log("handleOnDrop called")
@@ -41,13 +41,10 @@ function BasicDropzone(props) {
     const reader = new FileReader()
     reader.onload = () => {
       if (!!reader.result) {
-        //console.log('reader.result', reader.result)
         const resultText = reader.result as string
         let patientTimeData = resultText.split('\n').map(x => x.split(','))
         const patientStaticData = patientTimeData.splice(0, 7)
         patientTimeData.pop() // Remove empty line at end
-        console.log(patientStaticData)
-        console.log(patientTimeData)
 
         // Add static data
         setRecordID(patientStaticData[1][2])
