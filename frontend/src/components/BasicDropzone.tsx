@@ -31,10 +31,10 @@ const baseStyle = {
   };
 
 
-function BasicDropzone(props) {
+function BasicDropzone(props: { setRows: any; setRecordID: any; setSelectedAge: any; setSelectedGender: any; setSelectedWeight: any; setSelectedHeight: any; setSelectedICUType: any; }) {
   const [setRows, setRecordID, setSelectedAge, setSelectedGender, setSelectedWeight, setSelectedHeight, setSelectedICUType] = [props.setRows, props.setRecordID, props.setSelectedAge, props.setSelectedGender, props.setSelectedWeight, props.setSelectedHeight, props.setSelectedICUType]
 
-  const handleOnDrop = (files, fileRejections) => {
+  const handleOnDrop = (files: Blob[], fileRejections: any) => {
     console.log("handleOnDrop called")
     console.log(files)
     console.log(fileRejections)
@@ -55,7 +55,7 @@ function BasicDropzone(props) {
         setSelectedWeight(patientStaticData[6][2])
 
         // Add time-series data
-        const newData = []
+        const newData: { id: number; time: string; parameter: string; value: string; }[] = []
         patientTimeData.forEach((row, i) => {
           newData.push({
             id: i + 1,
@@ -87,14 +87,8 @@ function BasicDropzone(props) {
     multiple: false,
     maxFiles: 1,
   });
-  
-  const files = acceptedFiles.map(file => (
-    <li key={file.path}>
-      {file.path} - {file.size} bytes
-    </li>
-  ));
 
-  const style = useMemo(() => ({
+  const style: any = useMemo(() => ({
     ...baseStyle,
     ...(isFocused ? focusedStyle : {}),
     ...(isDragAccept ? acceptStyle : {}),
