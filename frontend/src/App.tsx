@@ -8,11 +8,19 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import TextField from '@mui/material/TextField';
-import { createTheme, Grid, Paper, ThemeProvider, Toolbar } from '@mui/material';
+import { Box, createTheme, Grid, Paper, ThemeProvider, Toolbar } from '@mui/material';
+import Modal from "@material-ui/core/Modal";
 import Typography from '@mui/material/Typography';
 import Basic from './components/BasicDropzone';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import PatientDataTable from './components/PatientDataTable';
+
+import { BrowserRouter as Router, Route, Link, useNavigate} from 'react-router-dom';
+
+import BarChart from './components/BarChart';
+import { UserData } from "./components/Data";
+
+import ApexChart from "./components/ApexChart";
 
 
 const url = `https://n7j7474qbf.execute-api.ap-southeast-2.amazonaws.com/predict`
@@ -59,6 +67,8 @@ function App() {
   const [selectedWeight, setSelectedWeight] = useState("")
   const [selectedHeight, setSelectedHeight] = useState("")
   const [selectedICUType, setSelectedICUType] = useState("1")
+  const [showResult, setShowResult] = useState(false)
+  const [result, setResult] = useState([])
 
   const handleRecordIDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRecordID(event.target.value);
@@ -83,6 +93,7 @@ function App() {
   const handleICUTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedICUType((event.target as HTMLInputElement).value);
   };
+ 
 
   const handleSubmitButtonClick = () => {
     console.log("Submit Button Clicked")
@@ -108,9 +119,30 @@ function App() {
       body: body
     }).then((response) => response.json())
     .then((responseJSON) => {
-      // TODO: Format and display the responseJSON data into a bar chart for the user.
+      setResult(responseJSON)
       console.log(responseJSON)
+      console.log(result)    
     })
+    setShowResult(true)
+  }
+
+
+  const renderModal = () => {
+    return <Modal
+      open={showResult}
+      onClose={() => setShowResult(false)}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Paper style={{position: 'absolute', left: '40%', top: '40%'}}>
+        <Typography id="modal-modal-title" variant="h6" component="h2">
+          Text in a modal
+        </Typography>
+        <Typography id="modal-modal-description"  sx={{ mt: 10 }}>
+          Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+        </Typography>
+      </Paper>
+    </Modal>
   }
 
   // Table rows for the time-series data
@@ -129,10 +161,24 @@ function App() {
     { id: 12, time: '03:15', parameter: 'Platelets', value: '1' },
   ]);
 
+  const [userData, setUserData] = useState({
+    labels: [2016],
+    datasets: [
+      {
+        label: "Users Gained",
+        data: [2],
+      },
+    ],
+  });
+
 
   return (
     <ThemeProvider theme={darkTheme}>
+      
     <div className="App">
+      {showResult &&
+        renderModal()
+      }
       <header className="App-header">
       <AppBar position="absolute">
         <Toolbar>
@@ -254,9 +300,11 @@ function App() {
           <Grid item sm={9}/>
           <Grid item container sm={2} direction="column" justifyContent="center" alignItems="flex-end" pr={4}>
               <label htmlFor="contained-button-file">
+            
                 <Button variant="contained" onClick={handleSubmitButtonClick} component="span">
                   Submit Data
                 </Button>
+              
               </label>
           </Grid>
         </Grid>
