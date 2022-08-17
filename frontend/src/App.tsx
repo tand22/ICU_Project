@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css'
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button'
@@ -14,14 +14,8 @@ import Typography from '@mui/material/Typography';
 import Basic from './components/BasicDropzone';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import PatientDataTable from './components/PatientDataTable';
-
-import { BrowserRouter as Router, Route, Link, useNavigate} from 'react-router-dom';
-
-import BarChart from './components/BarChart';
-import { UserData } from "./components/Data";
-
-import ApexChart from "./components/ApexChart";
-
+import Chart from 'react-apexcharts'
+// import { BrowserRouter as Router, Route, Link, useNavigate} from 'react-router-dom';
 
 const url = `https://n7j7474qbf.execute-api.ap-southeast-2.amazonaws.com/predict`
 
@@ -69,6 +63,29 @@ function App() {
   const [selectedICUType, setSelectedICUType] = useState("1")
   const [showResult, setShowResult] = useState(false)
   const [result, setResult] = useState([])
+  const [options, setObject] = useState({xaxis: {categories: [], labels: {style: {colors: 'white'}}}, yaxis: {min:0, max:0.1, labels: {style: {colors: 'white'}}}, dataLabels: {enabled: false}})
+  const [series, useSeries] = useState([{data: []}])
+
+  useEffect(() => {
+    if (result.length != 0) {
+      console.log(result)
+      setObject({
+        xaxis: {
+          // @ts-ignore
+          categories: result.interpretation.descriptors,
+          labels: {style: {colors: 'white'}}
+        },
+        yaxis: {min:0, max:0.1, labels: {style: {colors: 'white'}}},
+        dataLabels: {
+          enabled: false}
+      })
+      useSeries([{
+        // @ts-ignore
+        data: result.interpretation.desriptorValues
+      }])
+      setShowResult(true)
+    }
+  }, [result])
 
   const handleRecordIDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRecordID(event.target.value);
@@ -119,27 +136,25 @@ function App() {
       body: body
     }).then((response) => response.json())
     .then((responseJSON) => {
-      setResult(responseJSON)
-      console.log(responseJSON)
-      console.log(result)    
-    })
-    setShowResult(true)
+    setResult(responseJSON) 
+});
   }
-
 
   const renderModal = () => {
     return <Modal
       open={showResult}
       onClose={() => setShowResult(false)}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-graph"
     >
-      <Paper style={{position: 'absolute', left: '40%', top: '40%'}}>
-        <Typography id="modal-modal-title" variant="h6" component="h2">
-          Text in a modal
+      <Paper style={{position: 'absolute', left: '1%', top: '10%', margin:'auto'}}>
+        <Typography id="modal-title" variant="h3" component="h2">
+          {/* @ts-ignore */}
+          Predicted Outcome: {result.mortality_percentage}
         </Typography>
-        <Typography id="modal-modal-description"  sx={{ mt: 10 }}>
-          Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+        <Typography id="modal-graph"  sx={{ mt: 10 }}>
+          {/* @ts-ignore */}
+          <Chart options={options} series={series} type='bar' width={1800} height={500}/>
         </Typography>
       </Paper>
     </Modal>
@@ -161,22 +176,11 @@ function App() {
     { id: 12, time: '03:15', parameter: 'Platelets', value: '1' },
   ]);
 
-  const [userData, setUserData] = useState({
-    labels: [2016],
-    datasets: [
-      {
-        label: "Users Gained",
-        data: [2],
-      },
-    ],
-  });
-
-
   return (
     <ThemeProvider theme={darkTheme}>
       
     <div className="App">
-      {showResult &&
+      {result.length != 0 && 
         renderModal()
       }
       <header className="App-header">
