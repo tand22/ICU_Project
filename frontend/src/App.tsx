@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css'
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button'
@@ -8,12 +8,14 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import TextField from '@mui/material/TextField';
-import { createTheme, Grid, Paper, ThemeProvider, Toolbar } from '@mui/material';
+import { Box, createTheme, Grid, Paper, ThemeProvider, Toolbar } from '@mui/material';
+import Modal from "@material-ui/core/Modal";
 import Typography from '@mui/material/Typography';
 import Basic from './components/BasicDropzone';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import PatientDataTable from './components/PatientDataTable';
-
+import Chart from 'react-apexcharts'
+// import { BrowserRouter as Router, Route, Link, useNavigate} from 'react-router-dom';
 
 const url = `https://n7j7474qbf.execute-api.ap-southeast-2.amazonaws.com/predict`
 
@@ -59,6 +61,31 @@ function App() {
   const [selectedWeight, setSelectedWeight] = useState("")
   const [selectedHeight, setSelectedHeight] = useState("")
   const [selectedICUType, setSelectedICUType] = useState("1")
+  const [showResult, setShowResult] = useState(false)
+  const [result, setResult] = useState([])
+  const [options, setObject] = useState({xaxis: {categories: [], labels: {style: {colors: 'white'}}}, yaxis: {min:0, max:0.1, labels: {style: {colors: 'white'}}}, dataLabels: {enabled: false}})
+  const [series, useSeries] = useState([{data: []}])
+
+  useEffect(() => {
+    if (result.length != 0) {
+      console.log(result)
+      setObject({
+        xaxis: {
+          // @ts-ignore
+          categories: result.interpretation.descriptors,
+          labels: {style: {colors: 'white'}}
+        },
+        yaxis: {min:0, max:0.1, labels: {style: {colors: 'white'}}},
+        dataLabels: {
+          enabled: false}
+      })
+      useSeries([{
+        // @ts-ignore
+        data: result.interpretation.desriptorValues
+      }])
+      setShowResult(true)
+    }
+  }, [result])
 
   const handleRecordIDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRecordID(event.target.value);
@@ -83,6 +110,7 @@ function App() {
   const handleICUTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedICUType((event.target as HTMLInputElement).value);
   };
+ 
 
   const handleSubmitButtonClick = () => {
     console.log("Submit Button Clicked")
@@ -108,9 +136,28 @@ function App() {
       body: body
     }).then((response) => response.json())
     .then((responseJSON) => {
-      // TODO: Format and display the responseJSON data into a bar chart for the user.
-      console.log(responseJSON)
-    })
+    setResult(responseJSON) 
+});
+  }
+
+  const renderModal = () => {
+    return <Modal
+      open={showResult}
+      onClose={() => setShowResult(false)}
+      aria-labelledby="modal-title"
+      aria-describedby="modal-graph"
+    >
+      <Paper style={{position: 'absolute', left: '1%', top: '10%', margin:'auto'}}>
+        <Typography id="modal-title" variant="h3" component="h2">
+          {/* @ts-ignore */}
+          Predicted Outcome: {result.mortality_percentage}
+        </Typography>
+        <Typography id="modal-graph"  sx={{ mt: 10 }}>
+          {/* @ts-ignore */}
+          <Chart options={options} series={series} type='bar' width={1800} height={500}/>
+        </Typography>
+      </Paper>
+    </Modal>
   }
 
   // Table rows for the time-series data
@@ -129,10 +176,13 @@ function App() {
     { id: 12, time: '03:15', parameter: 'Platelets', value: '1' },
   ]);
 
-
   return (
     <ThemeProvider theme={darkTheme}>
+      
     <div className="App">
+      {result.length != 0 && 
+        renderModal()
+      }
       <header className="App-header">
       <AppBar position="absolute">
         <Toolbar>
@@ -254,9 +304,11 @@ function App() {
           <Grid item sm={9}/>
           <Grid item container sm={2} direction="column" justifyContent="center" alignItems="flex-end" pr={4}>
               <label htmlFor="contained-button-file">
+            
                 <Button variant="contained" onClick={handleSubmitButtonClick} component="span">
                   Submit Data
                 </Button>
+              
               </label>
           </Grid>
         </Grid>
