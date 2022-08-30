@@ -43,16 +43,36 @@ function BasicDropzone(props: { setRows: any; setRecordID: any; setSelectedAge: 
       if (!!reader.result) {
         const resultText = reader.result as string
         let patientTimeData = resultText.split('\n').map(x => x.split(','))
-        const patientStaticData = patientTimeData.splice(0, 7)
         patientTimeData.pop() // Remove empty line at end
+        patientTimeData.shift() // Remove header line
 
         // Add static data
-        setRecordID(patientStaticData[1][2])
-        setSelectedAge(patientStaticData[2][2])
-        setSelectedGender(patientStaticData[3][2])
-        setSelectedHeight(patientStaticData[4][2])
-        setSelectedICUType(patientStaticData[5][2])
-        setSelectedWeight(patientStaticData[6][2])
+        for (let i = patientTimeData.length - 1; i>=0; i--) {
+          if (patientTimeData[i][1] === 'RecordID') {
+            setRecordID(patientTimeData[i][2]);
+            patientTimeData.splice(i, 1);
+          };
+          if (patientTimeData[i][1] === 'Age') {
+            setSelectedAge(patientTimeData[i][2]);
+            patientTimeData.splice(i, 1);
+          };
+          if (patientTimeData[i][1] === 'Gender') {
+            setSelectedGender(patientTimeData[i][2]);
+            patientTimeData.splice(i, 1);
+          };
+          if (patientTimeData[i][1] === 'Height') {
+            setSelectedHeight(patientTimeData[i][2]);
+            patientTimeData.splice(i, 1);
+          };
+          if (patientTimeData[i][1] === 'ICUType') {
+            setSelectedICUType(patientTimeData[i][2]);
+            patientTimeData.splice(i, 1);
+          };
+          if (patientTimeData[i][1] === 'Weight') {
+            setSelectedWeight(patientTimeData[i][2]);
+            patientTimeData.splice(i, 1);
+          };
+        };
 
         // Add time-series data
         const newData: { id: number; time: string; parameter: string; value: string; }[] = []
