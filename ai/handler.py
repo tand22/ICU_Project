@@ -6,6 +6,7 @@ from descriptors import descriptors
 
 cpu = torch.device("cpu")
 model = IMVFullLSTM(cpu, len(descriptors), 1, 128).to(cpu)
+model.eval()
 model.load_state_dict(torch.load("model_weights.pt", map_location=cpu))
 
 def predict(event, context):

@@ -17,7 +17,7 @@ import PatientDataTable from './components/PatientDataTable';
 import Chart from 'react-apexcharts'
 // import { BrowserRouter as Router, Route, Link, useNavigate} from 'react-router-dom';
 
-const url = `https://8780jxlw91.execute-api.ap-southeast-2.amazonaws.com/predict`
+const url = `https://iwhkrwpv22.execute-api.ap-southeast-2.amazonaws.com/predict`
 
 function App() {
   const Input = styled('input')({
