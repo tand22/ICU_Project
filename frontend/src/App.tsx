@@ -15,7 +15,6 @@ import Basic from './components/BasicDropzone';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import PatientDataTable from './components/PatientDataTable';
 import Chart from 'react-apexcharts'
-// import { BrowserRouter as Router, Route, Link, useNavigate} from 'react-router-dom';
 
 const url = `https://iwhkrwpv22.execute-api.ap-southeast-2.amazonaws.com/predict`
 
@@ -62,25 +61,37 @@ function App() {
   const [selectedHeight, setSelectedHeight] = useState("")
   const [selectedICUType, setSelectedICUType] = useState("1")
   const [showResult, setShowResult] = useState(false)
-  const [result, setResult] = useState([])
-  const [options, setObject] = useState({xaxis: {categories: [], labels: {style: {colors: 'white'}}}, yaxis: {min:0, max:0.1, labels: {style: {colors: 'white'}}}, dataLabels: {enabled: false}})
+  const [result, setResult] = useState<any>([])
+  const [categories, setCategories] = useState<any>([])
   const [series, useSeries] = useState([{data: []}])
+  const options = {
+    title: {text: 'Descriptor Weightings', align: 'center', style: {color: 'white', fontSize: '20px'}},
+    xaxis: {categories: categories, labels: {style: {colors: 'white', fontSize: '16px'}}},
+    yaxis: {min:0, max:0.1, labels: {
+      style: {colors: 'white', fontSize: '14px'},
+      formatter: function (val: number) {
+      return val.toFixed(2)
+    }}, 
+    style: {colors: 'white'},
+    type: 'numeric',
+    tickAmount: 10},
+    dataLabels: {enabled: false},
+
+    states: {
+      hover: {
+          filter: {
+              type: 'none',
+          }
+      },
+    }}
 
   useEffect(() => {
     if (result.length != 0) {
-      console.log(result)
-      setObject({
-        xaxis: {
-          // @ts-ignore
-          categories: result.interpretation.descriptors,
-          labels: {style: {colors: 'white'}}
-        },
-        yaxis: {min:0, max:0.1, labels: {style: {colors: 'white'}}},
-        dataLabels: {
-          enabled: false}
-      })
+      console.log(result);
+      setCategories(result.interpretation.descriptors);
       useSeries([{
         // @ts-ignore
+        name: 'Weightings',
         data: result.interpretation.descriptorValues
       }])
       setShowResult(true)
@@ -150,11 +161,13 @@ function App() {
       <Paper style={{position: 'absolute', left: '1%', top: '10%', margin:'auto'}}>
         <Typography id="modal-title" variant="h3" component="h2">
           {/* @ts-ignore */}
-          Predicted Outcome: {result.mortality_percentage}
+          <Box style={{margin:'30px'}}>
+            Predicted Outcome: {result.mortalityPercentage}
+          </Box>
         </Typography>
         <Typography id="modal-graph"  sx={{ mt: 10 }}>
           {/* @ts-ignore */}
-          <Chart options={options} series={series} type='bar' width={1800} height={500}/>
+          <Chart options={options} series={series} type='bar' width={1800} height={500} />
         </Typography>
       </Paper>
     </Modal>
@@ -167,7 +180,7 @@ function App() {
     { id: 3, time: '00:00', parameter: 'ALT', value: '2' },
     { id: 4, time: '00:00', parameter: 'AST', value: '3.2' },
     { id: 5, time: '00:00', parameter: 'Cholesterol', value: '1' },
-    { id: 6, time: '01:45', parameter: 'HCT', value: null },
+    { id: 6, time: '01:45', parameter: 'HCT', value: '2' },
     { id: 7, time: '01:45', parameter: 'FiO2', value: '23' },
     { id: 8, time: '01:45', parameter: 'HCO3', value: '15' },
     { id: 9, time: '01:45', parameter: 'Platelets', value: '1' },
