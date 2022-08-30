@@ -70,7 +70,7 @@ function App() {
     yaxis: {min:0, max:0.1, labels: {
       style: {colors: 'white', fontSize: '14px'},
       formatter: function (val: number) {
-      return val.toFixed(4)
+      return val.toFixed(2)
     }}, 
     style: {colors: 'white'},
     type: 'numeric',
