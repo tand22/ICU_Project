@@ -21,6 +21,7 @@ class IMVFullLSTM(torch.jit.ScriptModule):
         self.F_alpha_n_b = nn.Parameter(torch.randn(input_dim, 1) * init_std)
         self.F_beta = nn.Linear(2 * n_units, 1)
         self.Phi = nn.Linear(2 * n_units, output_dim)
+        self.dropout = nn.Dropout(0.25)
         
     @torch.jit.script_method
     def forward(self, x):
@@ -29,8 +30,8 @@ class IMVFullLSTM(torch.jit.ScriptModule):
         outputs = torch.jit.annotate(List[Tensor], [])
         for t in range(x.shape[1]):
             # eq 1
-            j_tilda_t = torch.tanh(torch.einsum("bij,ijk->bik", h_tilda_t, self.W_j) + \
-                                   torch.einsum("bij,jik->bjk", x[:,t,:].unsqueeze(1), self.U_j) + self.b_j)
+            j_tilda_t = self.dropout(torch.tanh(torch.einsum("bij,ijk->bik", h_tilda_t, self.W_j) + \
+                                   torch.einsum("bij,jik->bjk", x[:,t,:].unsqueeze(1), self.U_j) + self.b_j))
             inp =  torch.cat([x[:, t, :], h_tilda_t.reshape(h_tilda_t.shape[0], -1)], dim=1)
             # eq 2
             i_t = torch.sigmoid(self.W_i(inp))
@@ -39,7 +40,7 @@ class IMVFullLSTM(torch.jit.ScriptModule):
             # eq 3
             c_t = c_t*f_t + i_t*j_tilda_t.reshape(j_tilda_t.shape[0], -1)
             # eq 4
-            h_tilda_t = (o_t*torch.tanh(c_t)).reshape(h_tilda_t.shape[0], self.input_dim, self.n_units)
+            h_tilda_t = self.dropout((o_t*torch.tanh(c_t)).reshape(h_tilda_t.shape[0], self.input_dim, self.n_units))
             outputs += [h_tilda_t]
         outputs = torch.stack(outputs)
         outputs = outputs.permute(1, 0, 2, 3)
@@ -48,7 +49,7 @@ class IMVFullLSTM(torch.jit.ScriptModule):
         alphas = torch.exp(alphas)
         alphas = alphas/torch.sum(alphas, dim=1, keepdim=True)
         g_n = torch.sum(alphas*outputs, dim=1)
-        hg = torch.cat([g_n, h_tilda_t], dim=2)
+        hg = self.dropout(torch.cat([g_n, h_tilda_t], dim=2))
         mu = self.Phi(hg)
         betas = torch.tanh(self.F_beta(hg))
         betas = torch.exp(betas)
