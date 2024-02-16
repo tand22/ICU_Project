@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {useDropzone} from 'react-dropzone';
 
 const baseStyle = {
@@ -118,6 +118,20 @@ function BasicDropzone(props: { setRows: any; setRecordID: any; setSelectedAge: 
     isDragAccept,
     isDragReject
   ]);
+
+  useEffect(() => {
+    loadDefaultLocalFile();
+  }, []);
+
+  async function loadDefaultLocalFile() {
+    try {
+      const response = await fetch('src/assets/142673.txt');
+      const blob = await response.blob();
+      handleOnDrop([blob], '');
+    } catch (error) {
+      console.error('Error loading file:', error);
+    }
+  }
 
   return (
     <section className="container">

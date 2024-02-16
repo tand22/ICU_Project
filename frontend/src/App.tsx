@@ -174,20 +174,7 @@ function App() {
   }
 
   // Table rows for the time-series data
-  const [rows, setRows] = useState([
-    { id: 1, time: '00:00', parameter: 'Albumin', value: '1' },
-    { id: 2, time: '00:00', parameter: 'ALP', value: '1' },
-    { id: 3, time: '00:00', parameter: 'ALT', value: '2' },
-    { id: 4, time: '00:00', parameter: 'AST', value: '3.2' },
-    { id: 5, time: '00:00', parameter: 'Cholesterol', value: '1' },
-    { id: 6, time: '01:45', parameter: 'HCT', value: '2' },
-    { id: 7, time: '01:45', parameter: 'FiO2', value: '23' },
-    { id: 8, time: '01:45', parameter: 'HCO3', value: '15' },
-    { id: 9, time: '01:45', parameter: 'Platelets', value: '1' },
-    { id: 10, time: '03:15', parameter: 'FiO2', value: '23'},
-    { id: 11, time: '03:15', parameter: 'HCO3', value: '15' },
-    { id: 12, time: '03:15', parameter: 'Platelets', value: '1' },
-  ]);
+  const [rows, setRows] = useState([]);
 
   return (
     <ThemeProvider theme={darkTheme}>
