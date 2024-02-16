@@ -125,9 +125,11 @@ function BasicDropzone(props: { setRows: any; setRecordID: any; setSelectedAge: 
 
   async function loadDefaultLocalFile() {
     try {
-      const response = await fetch('src/assets/142673.txt');
-      const blob = await response.blob();
-      handleOnDrop([blob], '');
+      var reader = new FileReader();
+
+    const response = await fetch('https://icu-frontend-assets.s3.ap-southeast-2.amazonaws.com/142673.txt');
+    const blob = await response.blob();
+    handleOnDrop([blob], '');
     } catch (error) {
       console.error('Error loading file:', error);
     }
