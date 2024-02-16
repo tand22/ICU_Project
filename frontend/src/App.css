@@ -19,3 +19,12 @@
   color: white;
   display: flex;
 }
+
+.apexcharts-bar-area:hover {
+  fill: #FF0099;
+}
+
+.apexcharts-tooltip {
+  background: #f3f3f3;
+  color: black;
+}

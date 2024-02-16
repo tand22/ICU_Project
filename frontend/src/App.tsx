@@ -157,12 +157,13 @@ function App() {
       onClose={() => setShowResult(false)}
       aria-labelledby="modal-title"
       aria-describedby="modal-graph"
+      style={{inset: 50}}
     >
-      <Paper style={{position: 'absolute', left: '1%', top: '10%', margin:'auto'}}>
+      <Paper style={{overflow: 'scroll', padding: '8px'}}>
         <Typography id="modal-title" variant="h3" component="h2">
           {/* @ts-ignore */}
           <Box style={{margin:'30px'}}>
-            Predicted Outcome: {result.mortalityPercentage}
+            Chance of Death: {result.mortalityPercentage}
           </Box>
         </Typography>
         <Typography id="modal-graph"  sx={{ mt: 10 }}>
