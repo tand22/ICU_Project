@@ -135,7 +135,7 @@ function App() {
     payload.push(["00:00", "Weight", selectedWeight])
 
     // Format the time-series data
-    rows.forEach((row) => {
+    rows.forEach((row: any) => {
       payload.push([row.time, row.parameter, row.value])
     })
 
