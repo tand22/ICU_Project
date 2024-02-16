@@ -22,3 +22,6 @@ Start the app in the `dev` environment:
 
 ```npm run dev
 ```
+
+hey dudes if you want to chuck this on your resume
+it's linked at https://master.d22t4p4muz6r32.amplifyapp.com/

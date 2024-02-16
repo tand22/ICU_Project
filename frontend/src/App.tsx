@@ -163,7 +163,7 @@ function App() {
         <Typography id="modal-title" variant="h3" component="h2">
           {/* @ts-ignore */}
           <Box style={{margin:'30px'}}>
-            Chance of Death: {result.mortalityPercentage}
+            Chance of Death: {(result.mortalityPercentage * 100).toFixed(2) + "%"}
           </Box>
         </Typography>
         <Typography id="modal-graph"  sx={{ mt: 10 }}>
